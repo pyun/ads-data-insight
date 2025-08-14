@@ -1,0 +1,9 @@
+logs/
+*.log
+__pycache__/
+*.pyc
+*.pyo
+.env
+.venv/
+output/*.csv
+repl_state/
