@@ -8,7 +8,7 @@ import trino
 from agent.gaid_agent import GaidAgent
 from agent.sql_agent import SqlAgent
 from config.logger_config import setup_logger
-from config.trino_config import TRINO_CONFIG
+from config.config import TRINO_CONFIG
 
 setup_logger()
 logger = logging.getLogger(__name__)
@@ -56,7 +56,7 @@ class CoreAgent:
             
             # 步骤2: 生成SQL语句
             logger.debug("步骤2: 开始生成SQL语句")
-            combined_input = f"{user_input}{condition_results}"
+            combined_input = f"{user_input};condition:{condition_results}"
             sql_results = self.sql_agent.run(combined_input)
             
             # 提取SQL语句
@@ -111,6 +111,8 @@ class CoreAgent:
                 writer.writerows(results)  # 写入数据
             
             logger.info(f"SQL执行完成，结果已保存到: {csv_filename}")
+
+            
             return os.path.abspath(csv_filename)
             
         except Exception as e:

@@ -7,6 +7,10 @@ os.environ["BYPASS_TOOL_CONSENT"] = "true"
 
 def setup_logger():
     """配置日志 - 同时输出到控制台和文件，每天轮转，保留30天"""
+    # 确保logs目录存在
+    log_dir = "./logs"
+    os.makedirs(log_dir, exist_ok=True)
+    
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",

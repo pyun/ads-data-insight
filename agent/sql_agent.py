@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Optional
 
 from mcp import StdioServerParameters, stdio_client
@@ -8,7 +9,9 @@ from strands.models import BedrockModel
 from strands.tools.mcp import MCPClient
 from strands_tools import file_read, file_write, shell, use_aws, python_repl
 from config.logger_config import setup_logger
-from config.trino_config import TRINO_CONFIG
+from config.config import TRINO_CONFIG
+from config.config import model
+from handler.handler import AgentHandler
 
 setup_logger()
 logger = logging.getLogger(__name__)
@@ -21,6 +24,7 @@ SYSTEM_PROMPT = """
 	## 包名:com.example.social
 	## 事件名称:install
 	## 时间周期:20250701-20250811
+    ## condition:[]/*.csv
 # 分析逻辑
     ## 首先分析用户输入中的condition，如果是一个列表，请将列表信息更新到以下sql的in条件中，如果是一个表名，该表只有一个字段：gaid，替换如下sql中的in条件，采用与该表关联的方式过滤gaid；
     ## 判断事件名称,严格按照事件名称，选择如下sql，填充条件执行：
@@ -111,9 +115,11 @@ class SqlAgent:
     def _initialize_mcp_server(self):
         """初始化MCP服务器连接"""
         try:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            mcp_server_file = os.path.join(os.path.dirname(base_dir), "trino-mcp/server.py")
             params = StdioServerParameters(
                 command="python",
-                args=["/data/mcp-trino-python/src/server_stdio.py"],
+                args=[mcp_server_file],
                 env=TRINO_CONFIG
             )
             
@@ -140,16 +146,11 @@ class SqlAgent:
                 tools.extend(self.server.list_tools_sync())
                 logger.debug(f"已添加MCP工具，总工具数: {len(tools)}")
             
-            model = BedrockModel(
-                model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-                region_name="us-east-1"
-            )
-            
             agent = Agent(
                 model=model,
                 tools=tools,
                 system_prompt=self.sys_prompt,
-                callback_handler=PrintingCallbackHandler()
+                callback_handler=AgentHandler()
             )
             
             logger.debug("SQL Agent创建成功")
