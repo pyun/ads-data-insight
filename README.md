@@ -145,12 +145,19 @@ git clone <repository-url>
 cd ads-data-insight
 ```
 
-2. **安装依赖**
+2. **安装后端依赖**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **配置数据库连接**
+3. **安装前端依赖**
+```bash
+cd frontend
+pip install -r requirements.txt
+cd ..
+```
+
+4. **配置数据库连接**
 编辑 `config/trino_config.py` 文件：
 ```python
 TRINO_CONFIG = {
@@ -160,11 +167,17 @@ TRINO_CONFIG = {
 }
 ```
 
-4. **配置 AWS 凭证**
+5. **配置 AWS 凭证**
 ```bash
 export AWS_ACCESS_KEY_ID=your-access-key
 export AWS_SECRET_ACCESS_KEY=your-secret-key
 export AWS_DEFAULT_REGION=us-east-1
+```
+
+6. **创建必要目录**
+```bash
+mkdir -p output
+# logs 目录会在首次运行时自动创建
 ```
 
 ## 🚀 使用方法
@@ -268,7 +281,9 @@ curl -X POST "http://localhost:8000/data-query/s3-path" \
 ## 🔧 配置说明
 
 ### 日志配置
-系统使用结构化日志记录，配置文件位于 `config/logger_config.py`
+- 系统使用结构化日志记录，配置文件位于 `config/logger_config.py`
+- 日志文件自动保存到 `logs/` 目录（首次运行时自动创建）
+- 支持按天轮转，保留30天历史日志
 
 ### 数据库配置
 Trino 连接配置位于 `config/trino_config.py`
@@ -304,12 +319,16 @@ ads-data-insight/
 │   ├── main.py         # FastAPI 主应用
 │   └── data_query.py   # 数据查询路由
 ├── config/             # 配置模块
-│   ├── logger_config.py # 日志配置
+│   ├── logger_config.py # 日志配置（自动创建 logs 目录）
 │   └── trino_config.py  # 数据库配置
 ├── frontend/           # 前端界面
-│   └── app.py          # Streamlit 应用
+│   ├── app.py          # Streamlit 应用
+│   └── requirements.txt # 前端依赖
 ├── data/               # 数据文件目录
 ├── output/             # 输出结果目录
+├── logs/               # 日志文件目录（自动创建）
+├── requirements.txt    # 后端依赖
+├── DEPENDENCIES_REPORT.md # 依赖检查报告
 └── requirement/        # 需求文档
 ```
 

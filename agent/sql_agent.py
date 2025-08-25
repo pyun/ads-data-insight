@@ -113,7 +113,7 @@ class SqlAgent:
         try:
             params = StdioServerParameters(
                 command="python",
-                args=["/opt/soft/mcp-server/mcp-trino-python/src/server_stdio.py"],
+                args=["/data/mcp-trino-python/src/server_stdio.py"],
                 env=TRINO_CONFIG
             )
             

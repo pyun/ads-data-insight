@@ -6,7 +6,9 @@ from strands.handlers.callback_handler import PrintingCallbackHandler
 from strands.models import BedrockModel
 from strands_tools import file_read, file_write, shell, use_aws, python_repl
 from config.logger_config import setup_logger
-from config.trino_config import TRINO_CONFIG
+from config.config import TRINO_CONFIG
+from config.config import model
+from handler.handler import AgentHandler
 
 setup_logger()
 logger = logging.getLogger(__name__)
@@ -23,7 +25,6 @@ SYSTEM_PROMPT = """
 # 请严格按照如下要求输出结果，不要总结、不要前言
     ## 如果返回gaid列表，输出如下形式：[gaid1,gaid2,...gaidn]
     ## 如果返回是临时表，请返回hive.default.temp_gaid
-# 最后清除生成的临时文件
 # 请始终用中文输出和交互
 """
 
@@ -43,6 +44,7 @@ class GaidAgent:
         self.sys_prompt = sys_prompt if sys_prompt is not None else SYSTEM_PROMPT
         self.sys_prompt = self.sys_prompt.format(**TRINO_CONFIG)
         logger.info("初始化GaidAgent")
+        logger.info(f"system prompt: {self.sys_prompt}")
         
     def _create_agent(self) -> Agent:
         """创建并配置 Agent 实例
@@ -51,18 +53,13 @@ class GaidAgent:
             Agent: 配置好的 Agent 实例
         """
         try:
-            tools = [file_read, file_write, shell, use_aws, python_repl]
-            
-            model = BedrockModel(
-                model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-                region_name="us-east-1"
-            )
+            tools = [python_repl,file_read, file_write, shell, use_aws]
             
             agent = Agent(
                 model=model,
                 tools=tools,
                 system_prompt=self.sys_prompt,
-                callback_handler=PrintingCallbackHandler()
+                callback_handler=AgentHandler()
             )
             
             logger.debug("Agent创建成功")
