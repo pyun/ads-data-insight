@@ -8,7 +8,7 @@ from strands.models import BedrockModel
 from strands.tools.mcp import MCPClient
 from strands_tools import file_read, file_write, shell, use_aws, python_repl
 from config.logger_config import setup_logger
-from config.trino_config import TRINO_CONFIG
+from config.config import TRINO_CONFIG
 
 setup_logger()
 logger = logging.getLogger(__name__)
@@ -113,7 +113,7 @@ class SqlAgent:
         try:
             params = StdioServerParameters(
                 command="python",
-                args=["/data/mcp-trino-python/src/server_stdio.py"],
+                args=[TRINO_CONFIG.get('TRINO_MCP_PY')],
                 env=TRINO_CONFIG
             )
             
