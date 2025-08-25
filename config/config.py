@@ -16,7 +16,7 @@ TRINO_CONFIG = {
     "TRINO_CATALOG": os.getenv("TRINO_CATALOG") or "",
     "TRINO_SCHEMA": os.getenv("TRINO_SCHEMA") or "",
     "TRINO_HTTP_SCHEME": os.getenv("TRINO_HTTP_SCHEME") or "http",
-    "TRINO_COMMAND": os.getenv("TRINO_MCP_PY") or "/data/mcp-trino-python/src/server_stdio.py",
+    "TRINO_CMD": os.getenv("TRINO_CMD") or "/data/mcp-trino-python/src/server_stdio.py",
 }
 model = BedrockModel(
     model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
