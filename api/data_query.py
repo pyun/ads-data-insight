@@ -104,6 +104,9 @@ async def query_with_s3_path(
         if not s3_path.startswith("s3://"):
             raise HTTPException(status_code=400, detail="S3路径必须以s3://开头")
         
+        logger.info(f"s3_path:{s3_path}")
+        logger.info(f"user_input:{user_input}")
+        
         s3_path_parts = s3_path[5:].split("/", 1)
         bucket_name = s3_path_parts[0]
         object_key = s3_path_parts[1] if len(s3_path_parts) > 1 else ""

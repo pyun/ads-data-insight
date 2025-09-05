@@ -1,0 +1,11 @@
+logs/*
+output/*
+.git
+.gitignore
+*.log
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+repl_state/
+*.tmp

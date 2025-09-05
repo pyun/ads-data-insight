@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 SYSTEM_PROMPT = """
 你是一个数据分析专家，我有一个数据表格，需要你完成如下任务：
 1. 将表格中gaid列的数据抽取出来，生成一个只包含一列，列名是gaid的csv文件，文件名保持不变；
-2. 将该文件上传到s3，s3目录：s3://pyuntestbucket1/trino/input/[文件名，去掉扩展名]/
+2. 将该文件上传到新加坡区域s3，s3目录：s3://pyuntestbucket1/trino/input/[文件名，去掉扩展名]/
 3. 然后用trino mcp，在hive.default中创建一个临时表，表名与文件名同名，表的external_location指定为上一步上传对象的目录；
 # trino连接信息：
     ## "TRINO_HOST": {TRINO_HOST}
