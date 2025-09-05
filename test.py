@@ -1,4 +1,6 @@
 import json
+import os
+import requests
 
 from mcp import StdioServerParameters, stdio_client
 from agent.gaid_agent import GaidAgent
@@ -9,6 +11,12 @@ from strands import Agent
 from config.config import model
 from handler.handler import AgentHandler
 from strands.tools.mcp import MCPClient
+from strands.telemetry import StrandsTelemetry
+
+os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://localhost:4318"
+strands_telemetry = StrandsTelemetry()
+strands_telemetry.setup_otlp_exporter()      # Send traces to OTLP endpoint
+strands_telemetry.setup_console_exporter()   # Print traces to console
 
 user_input = """
             1. gaid：/data/genai/ads-data-insight/data/input.csv
@@ -78,9 +86,29 @@ def test5():
     response = agent("帮我列出有哪些表")
     server.stop(None, None, None)
 
+def test6():
+    data = {
+        "user_input": """
+        1. gaid：input.csv
+        2. 包名:com.example.social
+        3. 事件名称:install
+        4. 时间周期:20250701-20250811
+        5. condition:
+        """,
+        "s3_path": "s3://pyuntestbucket1/trino/input1.csv"
+    }
+
+    # 提交到API
+    response = requests.post(
+        "http://localhost:8000/data-query/s3-path",
+        data=data
+    )
+    if response.status_code == 200:
+        result = response.json()
+        print(result)
 
 def main():
-    test5()
+    test6()
 
 
 if __name__ == "__main__":

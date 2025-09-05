@@ -96,7 +96,7 @@ async def query_with_s3_path(
     s3_path: str = Form(...),
     aws_access_key_id: Optional[str] = Form(None),
     aws_secret_access_key: Optional[str] = Form(None),
-    aws_region: str = Form("us-east-1")
+    aws_region: Optional[str] = Form("us-east-1")
 ):
     """根据用户输入和S3路径返回数据"""
     try:
@@ -117,7 +117,7 @@ async def query_with_s3_path(
             temp_file_path = temp_file.name
         
         # 更新用户输入中的文件路径
-        updated_input = user_input.replace("input.csv", temp_file_path)
+        updated_input = user_input + temp_file_path
         
         # 执行查询
         core_agent = CoreAgent()
@@ -132,9 +132,21 @@ async def query_with_s3_path(
         # 将文件路径转换为HTTP下载地址
         if result and os.path.exists(result):
             filename = os.path.basename(result)
-            base_url = f"{request.url.scheme}://{request.url.netloc}"
-            download_url = f"{base_url}/download/{filename}"
-            return {"download_url": download_url}
+            s3_client = boto3.client('s3')
+            bucket_name = "pyuntestbucket1"
+            s3_key = f"/trino/output/{filename}"
+
+            # Upload file to S3
+            s3_client.upload_file(result, bucket_name,
+                                  s3_key)
+
+            # Generate presigned URL
+            presigned_url = s3_client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': bucket_name, 'Key': s3_key},
+                ExpiresIn=3600
+            )
+            return {"download_url": presigned_url}
         else:
             return {"result": result}
         

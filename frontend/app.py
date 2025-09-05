@@ -53,29 +53,47 @@ if selected_option == "广告渠道数据分析":
         disabled=st.session_state.submitting
     )
     
+    # S3路径输入
+    st.subheader("或者输入S3路径")
+    s3_path = st.text_input(
+        "",
+        placeholder="s3://bucket-name/path/to/file.csv",
+        disabled=st.session_state.submitting
+    )
+    
     # 提交按钮
     if st.button("提交", type="primary", disabled=st.session_state.submitting):
-        if work_order_content and uploaded_file:
+        if work_order_content and (uploaded_file or s3_path):
             st.session_state.submitting = True
             st.session_state.result_data = None
             st.rerun()
         else:
-            st.warning("请填写工单内容并上传文件后再提交")
+            st.warning("请填写工单内容并上传文件或输入S3路径后再提交")
     
     # 处理提交状态
     if st.session_state.submitting:
         with st.spinner("🤖 AI Agent正在工作中，请稍后..."):
             try:
-                # 准备提交数据
-                files = {"file": uploaded_file}
-                data = {"user_input": work_order_content}
+                if uploaded_file:
+                    # 文件上传方式
+                    files = {"file": uploaded_file}
+                    data = {"user_input": work_order_content}
+                    response = requests.post(
+                        "http://localhost:8000/data-query/upload-file",
+                        files=files,
+                        data=data
+                    )
+                elif s3_path:
+                    # S3路径方式
+                    data = {
+                        "user_input": work_order_content,
+                        "s3_path": s3_path
+                    }
+                    response = requests.post(
+                        "http://localhost:8000/data-query/s3-path",
+                        data=data
+                    )
                 
-                # 提交到API
-                response = requests.post(
-                    "http://localhost:8000/data-query/upload-file",
-                    files=files,
-                    data=data
-                )
                 if response.status_code == 200:
                     result = response.json()
                     st.session_state.result_data = result.get("download_url")
