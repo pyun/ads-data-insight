@@ -6,6 +6,8 @@ python-multipart>=0.0.6
 # AWS服务
 boto3>=1.34.0
 
+bedrock_agentcore
+
 # AI Agent框架
 strands-agents
 strands-agents-tools
