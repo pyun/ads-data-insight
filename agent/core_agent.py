@@ -5,6 +5,7 @@ from config.logger_config import setup_logger
 from config.config import preAgentConfig
 from config.config import sqlAgentConfig
 from config.config import reportAgentConfig
+from config.config import deployment
 from handler.handler import AgentHandler
 from config.config import TRINO_CONFIG
 from tools.strands.server import TrinoTools
@@ -36,14 +37,14 @@ def process_workflow(user_input: str) -> str:
     
     try:
         trino_mcp = TrinoTools(TRINO_CONFIG)
-        
+        tools = [use_aws,file_read, file_write]
+        bedrock_agent_core_code_interpreter = AgentCoreCodeInterpreter(region="us-east-1",identifier="code_interpreter_tool_hy159-z0YhWHcibv")
+
         # 步骤1: 生成GAID条件
         logger.info("步骤1: 开始生成GAID条件")
-        tools = [use_aws,file_read, file_write]
-        if config.config.deployment == "AGENTCORE":
-            bedrock_agent_core_code_interpreter = AgentCoreCodeInterpreter(region="us-east-1",identifier="code_interpreter_tool_hy159-z0YhWHcibv")
+        if deployment == "AGENTCORE":
             tools.append(bedrock_agent_core_code_interpreter.code_interpreter)
-        elif config.config.deployment == "LOCAL":
+        elif deployment == "LOCAL":
             tools.append(python_repl)
         
         preAgent = Agent(
@@ -71,14 +72,14 @@ def process_workflow(user_input: str) -> str:
         logger.debug("步骤3: 开始生成报告")
         reportAgent = Agent(
             model=reportAgentConfig.get("model"),
-            tools=[file_read, file_write, shell, use_aws, bedrock_agent_core_code_interpreter.code_interpreter],
+            tools=tools,
             system_prompt=reportAgentConfig.get("systemPrompt"),
             callback_handler=PrintingCallbackHandler()
         )
         sql_results = reportAgent(str(sql))
         logger.info(f"reportAgent返回结果：{sql_results}")
 
-        return str(sql_results).decode('utf-8')
+        return str(sql_results)
         
     except Exception as e:
         error_msg = f"工作流处理失败: {str(e)}"

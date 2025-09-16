@@ -1,5 +1,6 @@
 # Trino数据库连接配置
 from strands.models import BedrockModel
+from botocore.config import Config
 import os
 
 TRINO_CONFIG = {
@@ -9,7 +10,8 @@ TRINO_CONFIG = {
 }
 model = BedrockModel(
                 model_id="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-                region_name="us-east-1"
+                region_name="us-east-1",
+                boto_client_config=Config(read_timeout=1800),
             )
 
 #部署模式：LOCAL/AGENTCORE
@@ -18,11 +20,11 @@ deployment = "LOCAL"
 preAgentConfig = {
     "model":model,
     "systemPrompt": f"""
-你是一个数据分析专家，请从用户输入中的gaid后的s3地址提取s3对象，按如下要求处理s3对象：
+你是一个数据分析专家，请从用户输入中的gaid后的s3地址下载s3对象，按如下要求处理s3对象：
 1. 将文件中gaid列的数据抽取出来，生成一个只包含一列，列名是gaid的csv文件，文件名格式：input_8位随机数.csv；
 2. 请一定要包含全部行，生成后验证行数是否相同；
 3. 将该文件上传到美东1区域的s3，s3目录：s3://pyunemrbucket/trino/temp/[文件名，去掉扩展名]/
-4. 用trino mcp，在hive.default中创建一个临时表，表名与文件名同名，表的external_location指定为上一步上传对象的目录；
+4. 用trino工具，在hive.default中创建一个临时表，表名与文件名同名，表的external_location指定为上一步上传对象的目录；
 # trino连接信息：
     ## "TRINO_HOST": {TRINO_CONFIG["TRINO_HOST"]}
     ## "TRINO_PORT": {TRINO_CONFIG["TRINO_PORT"]}
@@ -38,6 +40,7 @@ preAgentConfig = {
 # 请严格按照如下要求输出结果，不要总结、不要前言
     ## 请将用户输入的提示词，与生成的临时表名拼接到一起，作为一个整体返回
 # 请始终用中文输出和交互
+# 所有临时文件保存在/tmp目录
 # 删除过程中产生的临时文件
 """
 }
@@ -99,6 +102,7 @@ sqlAgentConfig = {
     ## 请在生成sql前，阅读表结构，根据数据库中表结构字段类型，正确地格式化条件中的数据格式
     ## 请生成sql语句后，务必验证sql的正确性
 # 请始终用中文输出和交互
+# 所有临时文件保存在/tmp目录
 # 请严格按照如下要求输出结果：
     ## 只输出最终的sql语句，在sql语句前不要加任何内容，不要添加任何前导总结、解释、前缀或后缀
     ## 格式如下：
@@ -111,7 +115,7 @@ reportAgentConfig = {
     "model": model,
     "systemPrompt": f"""
 你是一个数据处理专家，我有一个sql语句，需要你完成如下任务：
-1. 连接到我的Trino集群，执行sql语句，如果sql语句中有多余的信息，请处理并提取可执行sql；
+1. 生成python代码，连接到我的Trino集群，执行sql语句，如果sql语句中有多余的信息，请处理并提取可执行sql；
 2. 将sql执行结果生成为一个csv文件
 3. 将生成的csv文件上传到s3，s3路径：s3://pyunemrbucket/trino/output/
 4. 返回该文件的s3预签名访问地址，有效期1天
@@ -120,6 +124,7 @@ reportAgentConfig = {
     ## "TRINO_PORT": {TRINO_CONFIG["TRINO_PORT"]}
     ## "TRINO_USER": {TRINO_CONFIG["TRINO_USER"]}
 # 请始终用中文输出和交互
+# 所有临时文件保存在/tmp目录
 # 删除过程中产生的临时文件
 # ***输出要求：请直接输出s3预签名访问地址，不要任何前缀、前言等多余的说明文字***
 """

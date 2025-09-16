@@ -21,7 +21,7 @@ agents:
     bedrock_agentcore:
       agent_id: ads_insight_agent-ho7JgH4kuU
       agent_arn: arn:aws:bedrock-agentcore:us-east-1:297126936078:runtime/ads_insight_agent-ho7JgH4kuU
-      agent_session_id: null
+      agent_session_id: 7752c7a2-e802-446a-9040-b842a0a5de51
     codebuild:
       project_name: null
       execution_role: null

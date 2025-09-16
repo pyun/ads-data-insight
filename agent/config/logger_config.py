@@ -4,6 +4,8 @@ from logging.handlers import TimedRotatingFileHandler
 
 # 设置环境变量
 os.environ["BYPASS_TOOL_CONSENT"] = "true"
+os.environ["LOG_LEVEL"] = "DEBUG"
+
 
 def setup_logger():
     """配置日志 - 同时输出到控制台和文件，每天轮转，保留30天"""
@@ -12,10 +14,10 @@ def setup_logger():
     os.makedirs(log_dir, exist_ok=True)
     
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
         handlers=[
-            logging.StreamHandler(),  # 控制台输出
-            TimedRotatingFileHandler("./logs/agent.log", when="midnight", interval=1, backupCount=30, encoding="utf-8")  # 每日轮转，保留30天
+            logging.StreamHandler()  # 控制台输出
+            #TimedRotatingFileHandler("./logs/agent.log", when="midnight", interval=1, backupCount=30, encoding="utf-8")  # 每日轮转，保留30天
         ]
     )
