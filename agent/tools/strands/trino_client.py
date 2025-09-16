@@ -8,7 +8,7 @@ import json
 
 import trino
 
-from config import TrinoConfig
+from tools.strands.config import TrinoConfig
 
 
 class TrinoError(Exception):

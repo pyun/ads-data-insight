@@ -1,0 +1,30 @@
+default_agent: ads_insight_agent
+agents:
+  ads_insight_agent:
+    name: ads_insight_agent
+    entrypoint: core_agent.py
+    platform: linux/arm64
+    container_runtime: docker
+    aws:
+      execution_role: arn:aws:iam::297126936078:role/bedrock_agentcore
+      execution_role_auto_create: true
+      account: '297126936078'
+      region: us-east-1
+      ecr_repository: 297126936078.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-ads_insight_agent
+      ecr_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: true
+    bedrock_agentcore:
+      agent_id: ads_insight_agent-ho7JgH4kuU
+      agent_arn: arn:aws:bedrock-agentcore:us-east-1:297126936078:runtime/ads_insight_agent-ho7JgH4kuU
+      agent_session_id: null
+    codebuild:
+      project_name: null
+      execution_role: null
+      source_bucket: null
+    authorizer_configuration: null
+    oauth_configuration: null

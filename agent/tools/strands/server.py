@@ -9,21 +9,23 @@ from pydantic import Field
 
 from strands import tool
 
-from config import load_config, TrinoConfig
-from trino_client import TrinoClient
+from tools.strands.config import load_config, TrinoConfig
+from tools.strands.trino_client import TrinoClient
 
 class TrinoTools:
     def __init__(self, config: dict = None):
         if config:
             self.config = TrinoConfig(
-                host=config.get('host'),
-                port=int(config.get('port', 8889)),
-                user=config.get('user'),
-                catalog=config.get('catalog'),
-                schema=config.get('schema'),
-                http_scheme=config.get('http_scheme', 'http'),
-                auth=config.get('auth'),
-                source=config.get('source', 'mcp-trino-python')
+                host=config.get('TRINO_HOST'),
+                port=int(config.get('TRINO_PORT', 8889)),
+                user=config.get('TRINO_USER'),
+                catalog=config.get('TRINO_CATALOG'),
+                schema=config.get('TRINO_SCHEMA'),
+                http_scheme=config.get('TRINO_HTTP_SCHEME', 'http'),
+                auth=None
+        if config.get("TRINO_PASSWORD", None) is None
+        else trino.auth.BasicAuthentication(config.get("TRINO_USER", None), config.get("TRINO_PASSWORD", None)),
+                source="mcp-trino-python"
             )
         else:
             self.config = load_config()

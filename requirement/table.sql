@@ -6,7 +6,7 @@ affiliate_id varchar(255),
 nation varchar(255),
 gaid varchar(255)
 ) WITH (
-  external_location = 's3://pyuntestbucket1/trino/t_conversion1',
+  external_location = 's3://pyunemrbucket/trino/data/t_conversion1',
   format = 'TEXTFILE'
 );
 
@@ -19,7 +19,7 @@ affiliate_id varchar(255),
 nation varchar(255),
 gaid varchar(255)
 )WITH (
-  external_location = 's3://pyuntestbucket1/trino/t_conversion2',
+  external_location = 's3://pyunemrbucket/trino/data/t_conversion2',
   format = 'TEXTFILE'
 );
 
@@ -33,6 +33,6 @@ affiliate_id varchar(255),
 nation varchar(255),
 gaid varchar(255)
 )WITH (
-  external_location = 's3://pyuntestbucket1/trino/t_event',
+  external_location = 's3://pyunemrbucket/trino/data/t_event',
   format = 'TEXTFILE'
 );
